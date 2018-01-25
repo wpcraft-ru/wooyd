@@ -1,6 +1,7 @@
 <?php
-
-
+if ( ! defined( 'ABSPATH' ) ) {
+  exit; // Exit if accessed directly
+}
 
 /**
 * Добавляем Ссылку и Контейнер для выбора и вывода способов доставки Яндекс
@@ -8,8 +9,9 @@
 function display_btn_select_ship($method){
   if('wpc_yandex_delivery' == $method->id){
     echo '<input type="hidden" name="yd_cost" id="yd_cost"/>';
+    echo '<input type="hidden" name="yd_params" id="yd_params"/>';
     printf('<div><a href="%s" data-ydwidget-open>Выбрать варианты</a></div>', '#yd-select-variants');
-    echo '<div><small id="delivery_description"></small></div>';
+    // echo '<div><small id="delivery_description"></small></div>';
   }
 }
 add_action('woocommerce_after_shipping_rate', 'display_btn_select_ship');
@@ -31,6 +33,28 @@ function wooid_display_widget(){
 add_action('woocommerce_after_cart', 'wooid_display_widget');
 add_action('woocommerce_after_checkout_form', 'wooid_display_widget');
 
+//Get ship data for Yandex Widget
+function wooyd_get_ship_data(){
+  $ship_data = WC()->cart->get_shipping_packages();
+
+  if( ! empty($ship_data[0]["contents"]) ){
+    $data_ship = array();
+    foreach($ship_data[0]["contents"] as $item_ship){
+      $data_ship[] = array(
+        (int)$item_ship["data"]->length,
+        (int)$item_ship["data"]->width,
+        (int)$item_ship["data"]->height,
+        (int)$item_ship["quantity"],
+      );
+    }
+  } else {
+    $data_ship = array();
+  }
+
+  return $data_ship;
+}
+
+
 /**
 * Выводим JS для работы виджета Яндекс Доставка
 */
@@ -44,14 +68,41 @@ function wooid_print_js()
 
   // Print script for Cart Widget Yandex Delivery
   echo $script;
+
+
+  $cart_data = array(
+    'quantity' => WC()->cart->get_cart_contents_count(),
+    'weight' => WC()->cart->get_cart_contents_weight(),
+    'cost' => WC()->cart->cart_contents_total,
+  );
+
+
+
+  $data_ship = wooyd_get_ship_data();
+
+  // if( ! empty($data_ship)){
+  //   foreach($data_ship as $item_ship){
+  //
+  //   }
+  // }
+
+  do_action('logger_u7', [t2, $data_ship]);
+
+
+  /*
+  */
   ?>
 
   <!-- Создаем условный объект с данными о содержимом корзины (для примера) -->
   <script type="text/javascript">
     window.cart = {
-      quantity: 1, //общее количество товаров
-      weight: 1,
-      cost: 3000
+      // quantity: 2, //общее количество товаров
+      // weight: 2,
+      // cost: 5222
+      quantity: <?php echo $cart_data['quantity'] ?>, //общее количество товаров
+      weight: <?php echo $cart_data['weight'] ?>,
+      cost: <?php echo $cart_data['cost'] ?>
+
     }
   </script>
 
@@ -84,8 +135,9 @@ function wooid_print_js()
 
         //габариты и количество по каждому товару в корзине
         'itemsDimensions': function () {return [
-          [10,15,10,2],
-          [20,15,5,1]
+          <?php echo json_encode($data_ship); ?>
+          // [10,15,10,2],
+          // [20,15,5,1]
         ]},
 
         //объявленная ценность заказа. Влияет на расчет стоимости в предлагаемых вариантах доставки, для записи поля в заказ данное поле так же нужно передать в объекте order (поле order_assessed_value)
@@ -102,7 +154,22 @@ function wooid_print_js()
             // yd$('#delivery_description').text(ydwidget.cartWidget.view.helper.getDeliveryDescription(delivery));
 
             // console.log(ydwidget.cartWidget.selectedDelivery.costWithRules);
+
+            // var yd_params1 = ydwidget.cartWidget.selectedDelivery.delivery.id;
+            // console.log(yd_params1);
+
+            var yd_params = [{
+                'id': ydwidget.cartWidget.selectedDelivery.delivery.id,
+                'delivery_service_id': ydwidget.cartWidget.selectedDelivery.delivery.delivery_service_id,
+                'name': ydwidget.cartWidget.selectedDelivery.delivery.name,
+                'unique_name': ydwidget.cartWidget.selectedDelivery.delivery.unique_name,
+                'cost': ydwidget.cartWidget.selectedDelivery.costWithRules,
+              }];
+
+            // console.log(yd_params);
+
             yd$('#yd_cost').val(ydwidget.cartWidget.selectedDelivery.costWithRules); //@TODO: do right
+            yd$('#yd_params').val(JSON.stringify(yd_params)); //@TODO: do right
             jQuery( 'form.checkout' ).trigger( 'update' );
             if (ydwidget.cartWidget.selectedDelivery.type == "POST") {
               yd$('#billing_address_1').val(ydwidget.cartWidget.getAddress().street);
@@ -157,20 +224,20 @@ function wooid_print_js()
           'order_assessed_value': cart.cost,
           //товарные позиции в заказе
           //возможно указывать и другие поля, см. объект OrderItem в документации
-          'order_items': function () {
-            var items = [];
-            items.push({
-              'orderitem_name': 'Товар 1',
-              'orderitem_quantity': 2,
-              'orderitem_cost': 100
-            });
-            items.push({
-              'orderitem_name': 'Товар 2',
-              'orderitem_quantity': 1,
-              'orderitem_cost': 200
-            });
-            return items;
-          }
+          // 'order_items': function () {
+          //   var items = [];
+          //   items.push({
+          //     'orderitem_name': 'Товар 1',
+          //     'orderitem_quantity': 2,
+          //     'orderitem_cost': 100
+          //   });
+          //   items.push({
+          //     'orderitem_name': 'Товар 2',
+          //     'orderitem_quantity': 1,
+          //     'orderitem_cost': 200
+          //   });
+          //   return items;
+          // }
         },
         //id элемента для вывода ошибок валидации. Вместо него можно указать параметр onValidationEnd, для кастомизации
         //вывода ошибок
@@ -184,15 +251,3 @@ function wooid_print_js()
   <?php
 }
 add_action('wp_footer', 'wooid_print_js', 100);
-
-function wooid_print_js_woo(){
-  ?>
-  <script type="text/javascript">
-      yd$(document).on( "ydmyevent", function( ) {
-       alert('Спасибо!')
-      });
-  </script>
-  <?php
-
-}
-// add_action('wp_footer', 'wooid_print_js_woo', 110);

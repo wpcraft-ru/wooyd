@@ -43,6 +43,9 @@ if ( ! class_exists( 'WC_Yandex_Delivery_Method' ) ) {
       // Save settings in admin if you have any defined
       add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
 
+      add_action('woocommerce_checkout_update_order_meta', array( $this, 'add_order_meta'), 10, 2);
+
+
     }
 
     /**
@@ -78,25 +81,68 @@ if ( ! class_exists( 'WC_Yandex_Delivery_Method' ) ) {
       if( ! empty($_REQUEST["post_data"])){
         $post_data = wp_parse_args($_REQUEST["post_data"]);
 
-        if( ! empty($post_data["yd_cost"])){
-          $cost = (int)$post_data["yd_cost"];
-          WC()->session->set( 'yd_cost', $cost );
-        }
+        // if( ! empty($post_data["yd_cost"])){
+        //   $cost = (int)$post_data["yd_cost"];
+        //   WC()->session->set( 'yd_cost', $cost );
+        // }
       }
-      // do_action('logger_u7', ['test6', $package]); //@TODO: remove logger
 
-       $cost = WC()->session->get('yd_cost');
-       if(empty($cost)){
-         $cost = 0;
-       }
+      if( ! empty($post_data["yd_params"])){
+        $params = json_decode($post_data["yd_params"], true);
+        $params = $params[0];
 
-       $rate = array(
+        WC()->session->set( 'yd_params', $params );
+      }
+
+      $params = WC()->session->get('yd_params');
+
+      if(empty($params['cost'])){
+        $cost = 0;
+      } else {
+        $cost = $params['cost'];
+      }
+
+      if(empty($params["name"])){
+        $label = $this->title;
+      } else {
+        $label = sprintf('%s (%s)', $this->title, $params["name"]);
+      }
+
+      $rate = array(
         'id' => $this->id,
-        'label' => $this->title, //@TODO: add name a variant
+        'label' => $label, //@TODO: add name a variant
         'cost' => $cost
       );
 
+      // do_action('logger_u7', ['test4', $rate]); //@TODO: remove logger
+
       $this->add_rate( $rate );
+    }
+
+    function add_order_meta($order_id, $data){
+
+      $order = wc_get_order($order_id);
+      $items = $order->get_items();
+      $shipping_methods = $order->get_shipping_methods();
+
+      $params = WC()->session->get('yd_params');
+
+      foreach ( $order->get_shipping_methods() as $shipping_method ) {
+            $mid = $shipping_method->get_id();
+            $shipping_method->update_meta_data( 'yd_id', $params["id"] );
+            $shipping_method->update_meta_data( 'yd_delivery_service_id', $params["delivery_service_id"] );
+            $shipping_method->update_meta_data( 'yd_unique_name', $params["unique_name"] );
+            $shipping_method->update_meta_data( 'yd_name', $params["name"] );
+            $shipping_method->save();
+
+            // wc_update_order_item_meta($mid,'dsf', 'sdfsdf');
+            // $mid = $shipping_method->get_id();
+      }
+      // $shipping_method = $shipping_methods[0];
+
+      // do_action('logger_u7', ['test2', $params]); //@TODO: remove logger
+
+
     }
   }
 }
