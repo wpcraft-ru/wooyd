@@ -39,8 +39,7 @@ e.g.
 
 1. Upload plugin to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to Settings / MoySklad and setup
-1. Got to Tools / MoySklad and run sync
+1. Go to Settings and setup
 
 == Frequently Asked Questions ==
 
