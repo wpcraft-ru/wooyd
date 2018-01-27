@@ -42,43 +42,6 @@ class WooYD_Settings
       $page = 'yandex_delivery_wpc',
       $section = 'wooyd_general'
     );
-
-    register_setting('yandex_delivery_wpc', 'wooid_script_track_widget');
-    add_settings_field(
-      $id = 'wooid_script_track_widget', //@TODO: fix for wooyd
-      $title = 'Трекинг-виджет',
-      $callback = [$this, 'display_wooid_script_track_widget'],
-      $page = 'yandex_delivery_wpc',
-      $section = 'wooyd_general'
-    );
-
-    register_setting('yandex_delivery_wpc', 'wooyd_widget_cart');
-    add_settings_field(
-      $id = 'wooyd_widget_cart',
-      $title = 'Карточный виджет',
-      $callback = [$this, 'display_wooyd_widget_cart'],
-      $page = 'yandex_delivery_wpc',
-      $section = 'wooyd_general'
-    );
-
-    register_setting('yandex_delivery_wpc', 'wooyd_widget_info');
-    add_settings_field(
-      $id = 'wooyd_widget_info',
-      $title = 'Инфо-виджет',
-      $callback = [$this, 'display_wooyd_widget_info'],
-      $page = 'yandex_delivery_wpc',
-      $section = 'wooyd_general'
-    );
-
-    register_setting('yandex_delivery_wpc', 'wooyd_widget_geo');
-    add_settings_field(
-      $id = 'wooyd_widget_geo',
-      $title = 'Гео-виджет',
-      $callback = [$this, 'display_wooyd_widget_geo'],
-      $page = 'yandex_delivery_wpc',
-      $section = 'wooyd_general'
-    );
-
   }
 
   //Display instruction for general section
@@ -92,27 +55,13 @@ class WooYD_Settings
     $name = 'wooid_script_cart_widget';
     printf('<textarea rows="3" cols="95" name="%s">%s</textarea>',$name, get_option($name));
   }
-  function display_wooid_script_track_widget(){
-    $name = 'wooid_script_track_widget';
-    printf('<textarea rows="10" cols="95" name="%s">%s</textarea>',$name, get_option($name));
-  }
-  function display_wooyd_widget_cart(){
-    $name = 'wooyd_widget_cart';
-    printf('<textarea rows="10" cols="95" name="%s">%s</textarea>',$name, get_option($name));
-  }
-  function display_wooyd_widget_info(){
-    $name = 'wooyd_widget_info';
-    printf('<textarea rows="10" cols="95" name="%s">%s</textarea>',$name, get_option($name));
-  }
-  function display_wooyd_widget_geo(){
-    $name = 'wooyd_widget_geo';
-    printf('<textarea rows="10" cols="95" name="%s">%s</textarea>',$name, get_option($name));
-  }
 
-  function settings_display(){
-    // var_dump($option); exit;
+
+  function settings_display()
+  {
     ?>
     <h1>Настройки интеграции для "Яндекс Доставка"</h1>
+    <p>Инструкция по виджетам: <a href="https://yandex.ru/support/delivery/widgets.html" target="_blank">https://yandex.ru/support/delivery/widgets.html</a></p>
     <form method="POST" action="options.php">
       <?php
         settings_fields( 'yandex_delivery_wpc' );
@@ -121,8 +70,8 @@ class WooYD_Settings
       ?>
     </form>
     <div class="wrapper_instruction">
-      <p><a href="">Расширенная версия</a></p>
-      <p><a href="">Техническая поддержка</a></p>
+      <p><a href="https://wpcraft.ru/product/wooyd-expert/" target="_blank">Расширенная версия с технической поддержкой</a></p>
+      <p><a href="https://wpcraft.ru/contacts/" target="_blank">Техническая поддержка</a></p>
     </div>
     <?php
   }
