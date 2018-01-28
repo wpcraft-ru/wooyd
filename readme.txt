@@ -1,7 +1,7 @@
 === WooMS ===
 Contributors: casepress
-Donate link: https://wpcraft.ru/product/wooyd-extra/
-Tags: moysklad, woocommerce, sync, integration
+Donate link: https://wpcraft.ru/product/wooyd-expert/
+Tags: yandex, woocommerce, sync, integration, delivery, shipment, yandex-delivery
 Requires at least: 4.0
 Tested up to: 4.8
 Stable tag: 4.3
@@ -24,9 +24,9 @@ Integration WooCommerce & Yandex Delivery https://delivery.yandex.ru (for Russia
 
 [Инструкция по правильному запуску Интернет магазина на базе WordPress & WooCommerce](https://wpcraft.ru/2017/internet-magazin-na-wordpress-woocommerce-storefront-mojsklad/)
 
-Для больших возможностей можно приобрести расширенную версию https://wpcraft.ru/product/wooyd-extra/
+Для больших возможностей можно приобрести расширенную версию https://wpcraft.ru/product/wooyd-expert/
 
-Исходники https://github.com/uptimizt/wooms (для желающих принять участие в разработке)
+Исходники https://github.com/uptimizt/wooyd (для желающих принять участие в разработке)
 
 По вопросам доработки https://wpcraft.ru/contacts/
 Плагин спроектирован таким образом, что относительно просто позволяет дорабатывать механику под задачи и автоматизацию конкретного магазина/каталога.
@@ -65,8 +65,11 @@ PHP 5.6
 
 == Changelog ==
 
+= 0.8.2 =
+* правки readme для WordPress и метаданные для каталога плагинов
+
 = 0.8.1 =
-* правки readme.md для GitHub 
+* правки readme.md для GitHub
 
 = 0.8 =
 * Инфо виджет - добавлена инструкция для настроек и отрефакторил код
